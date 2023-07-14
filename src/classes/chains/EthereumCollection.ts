@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 import canvas from "canvas";
-import { ProgressBar } from "../helpers/ProgressBar";
+import { ProgressBar } from "../../helpers/ProgressBar";
+import { Keypair, Connection, PublicKey, sendAndConfirmTransaction, Transaction, TransactionSignature, TransactionInstruction } from '@solana/web3.js';
 
 const DNA_DELIMITER = "+";
 

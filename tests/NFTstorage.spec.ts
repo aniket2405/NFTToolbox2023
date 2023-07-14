@@ -1,12 +1,14 @@
+import { NFTStorage } from 'nft.storage';
 import { describe } from "mocha";
 import chai from "chai";
 import sinon from "sinon";
 import mock from "mock-fs";
 import nock from "nock";
 import path from "path";
-import { NFTstorage } from "../src/classes/NFTstorage";
-import { Collection } from "../src/classes/Collection";
+import { NFTstorage } from "../src/classes/fileStorage/NFTstorage";
+import { Collection } from "../src/classes/chains/SolanaCollection";
 import { readFileSync } from "fs";
+import { PublicKey } from "@solana/web3.js";
 
 const expect = chai.expect;
 
@@ -45,9 +47,11 @@ const testCol = new Collection({
 	name: TEST_COL_NAME,
 	dir: TEST_COL_PATH,
 	description: "This is a demo collection for NFT Toolbox",
+	programId: new PublicKey('GaTJYGhopJDKYgWtjoaz2Gyc2sfRmW9v5haqppdtVxx5'),
+    account: new PublicKey('GaTJYGhopJDKYgWtjoaz2Gyc2sfRmW9v5haqppdtVxx5'),
 });
 
-const testNFTstorageObj = new NFTstorage(TEST_NFT_STORAGE_KEY);
+const testNFTstorageObj = new NFTstorage("38e274d48c07a0f20e52");
 
 describe("Test suite for Upload To NFTstorage API", () => {
 	beforeEach(() => {
@@ -120,7 +124,7 @@ describe("Test suite for Upload Method", () => {
 		);
 		sinon.replace(testNFTstorageObj, "uploadDirToService", fake);
 
-		await testNFTstorageObj.uploadCollection(testCol);
+		await testNFTstorageObj.uploadEthereumCollection(testCol);
 
 		expect(fake.calledTwice).to.be.true;
 	});

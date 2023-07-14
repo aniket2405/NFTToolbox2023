@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import { nftToolbox } from "../src/index";
 
-nftToolbox.initContract({
+nftToolbox.initEthereumContract({
 	name: "DemoContract",
 	symbol: "DEMO",
 	dir: path.join(__dirname, "Contracts"),
@@ -12,10 +12,8 @@ nftToolbox.initContract({
 	),
 });
 
-nftToolbox.draftContract({
+nftToolbox.draftEthereumContract({
 	baseUri: "ipfs://exampleCID/",
 	mintable: true,
 	incremental: true,
 });
-
-nftToolbox.deployContract();

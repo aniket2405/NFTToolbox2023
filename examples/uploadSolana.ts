@@ -1,20 +1,23 @@
 import { readFileSync } from "fs";
 import path from "path";
 import { nftToolbox } from "../src/index";
+import { PublicKey } from "@solana/web3.js";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const account = JSON.parse(
 	readFileSync(path.join(__dirname, "account.json")).toString()
 );
 
-nftToolbox.initCollection({
-	name: "Demo Collection",
-	dir: path.join(__dirname, "Demo Collection"),
+nftToolbox.initSolanaCollection({
+	name: "Demo Collection - Solana",
+	dir: path.join(__dirname, "Demo Collection - Solana"),
 	description: "This is a demo collection for NFT Toolbox",
+    programId: new PublicKey('GaTJYGhopJDKYgWtjoaz2Gyc2sfRmW9v5haqppdtVxx5'),
+    account: new PublicKey('GaTJYGhopJDKYgWtjoaz2Gyc2sfRmW9v5haqppdtVxx5'),
 });
 
 const uploadCollectionExample = async function () {
-	const res = await nftToolbox.uploadCollectionNFT();
+	const res = await nftToolbox.uploadSolanaCollectionNFT();
 	console.log(res);
 };
 
@@ -44,16 +47,16 @@ const uploadSingleExample = async function () {
 
 //////////////////////// Select ONE File Storage Platform ////////////////////////
 
-// nftToolbox.initFileStorageService({
-// 	service: "pinata",
-// 	key: account.PINATA_KEY,
-// 	secret: account.PINATA_SECURITY,
-// });
+nftToolbox.initFileStorageService({
+	service: "pinata",
+	key: account.PINATA_KEY,
+	secret: account.PINATA_SECURITY,
+});
 
-// nftToolbox.initFileStorageService({
-// 	service: "nft.storage",
-// 	key: account.NFT_STORAGE_KEY,
-// });
+nftToolbox.initFileStorageService({
+	service: "nft.storage",
+	key: "38e274d48c07a0f20e52",
+});
 
 // nftToolbox.initFileStorageService({
 // 	service: "storj",
@@ -77,4 +80,4 @@ const uploadSingleExample = async function () {
 
 uploadCollectionExample();
 
-uploadSingleExample();
+// uploadSingleExample();
