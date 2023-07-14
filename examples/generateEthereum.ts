@@ -1,13 +1,13 @@
 import path from "path";
 import { nftToolbox } from "../src/index";
 
-nftToolbox.initCollection({
+nftToolbox.initEthereumCollection({
 	name: "Demo Collection",
 	dir: path.join(__dirname, "Demo Collection"),
 	description: "This is a demo collection for NFT Toolbox",
 });
 
-nftToolbox.generateNFTs({
+nftToolbox.generateEthereumNFTs({
 	dir: path.join(__dirname, "layers"),
 	size: 100,
 	layersOrder: [
@@ -30,3 +30,5 @@ nftToolbox.generateNFTs({
 	rarityDefault: "1",
 	shuffleIndexes: true,
 });
+
+

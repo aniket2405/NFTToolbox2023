@@ -1,34 +1,105 @@
+// import { PathLike } from "fs";
+import { Collection as EthereumCollection, LayerSchema as EthereumLayerSchema } from "./classes/chains/EthereumCollection";
+import { LayerSchema as SolanaLayerSchema } from "./classes/chains/SolanaCollection";
+// import { LayerSchema as TezosLayerSchema } from "./classes/chains/TezosCollection";
+// import { Contract as EthereumContract, ContractAttributes, DraftOptions } from "./classes/chains/EthereumContract";
+import { Collection as SolanaCollection } from "./classes/chains/SolanaCollection";
+import { Contract as SolanaContract, ContractAttributes as solanaContractAttributes, DraftOptions as solanaDraftOptions } from "./classes/chains/SolanaContract";
+// import { Collection as TezosCollection } from "./classes/chains/TezosCollection";
+// import { Contract as TezosContract } from "./classes/chains/TezosContract";
+// import { FileStorage } from "./classes/fileStorage/FileStorage";
+// import { execSync } from "child_process";
+// import { Arweave } from "./classes/fileStorage/Arweave";
+// import { Infura } from "./classes/fileStorage/Infura";
+// import { Storj } from "./classes/fileStorage/Storj";
+// import { NFTstorage } from "./classes/fileStorage/NFTstorage";
+// import { Pinata } from "./classes/fileStorage/Pinata";
+import { Keypair, Connection, Account, PublicKey } from '@solana/web3.js';
+// import { connect } from "http2";
+// import { program } from "@project-serum/anchor/dist/cjs/native/system";
+import flatted from 'flatted';
+
+// Create a new connection to the Solana cluster
+const connection = new Connection('https://api.devnet.solana.com', 'singleGossip');
+
+        // Create a new Keypair object for the payer
+const payer = Keypair.generate();
+
 import { PathLike } from "fs";
-import { Collection, LayerSchema } from "./classes/Collection";
-import { Contract, ContractAttributes, DraftOptions } from "./classes/Contract";
-import { FileStorage } from "./classes/FileStorage";
+import { Collection, LayerSchema } from "./classes/chains/EthereumCollection";
+import { Contract as EthereumContract, ContractAttributes as ethereumContractAttributes, DraftOptions as ethereumDraftOptions } from "./classes/chains/EthereumContract";
+import { FileStorage } from "./classes/fileStorage/FileStorage";
 import { execSync } from "child_process";
-import { Arweave } from "./classes/Arweave";
-import { Infura } from "./classes/Infura";
-import { Storj } from "./classes/Storj";
-import { NFTstorage } from "./classes/NFTstorage";
-import { Pinata } from "./classes/Pinata";
+import { Arweave } from "./classes/fileStorage/Arweave";
+import { Infura } from "./classes/fileStorage/Infura";
+import { Storj } from "./classes/fileStorage/Storj";
+import { NFTstorage } from "./classes/fileStorage/NFTstorage";
+import { Pinata } from "./classes/fileStorage/Pinata";
 
 class Toolbox {
-	private collection: Collection | undefined = undefined;
+    private solanaCollection: SolanaCollection | undefined = undefined;
+	private ethereumcollection: Collection | undefined = undefined;
 	private fileStorageService: FileStorage | undefined = undefined;
-	private contract: Contract | undefined = undefined;
+	private ethereumcontract: EthereumContract | undefined = undefined;
+    private solanacontract: SolanaContract | undefined = undefined;
 
-	initCollection(attr: { name: string; dir: string; description?: string }) {
-		this.collection = new Collection({
+    initEthereumContract(attr: ethereumContractAttributes) {
+        this.ethereumcontract = new EthereumContract(attr);
+    }
+
+    draftEthereumContract(options: ethereumDraftOptions) {
+        if (!this.ethereumcontract) {
+            throw new Error("No Ethereum Contract is initialized");
+        }
+        this.ethereumcontract.draft(options);
+    }
+
+    initSolanaContract(attr: solanaContractAttributes) {
+        this.solanacontract = new SolanaContract(attr);
+    }
+
+    draftSolanaContract(options: solanaDraftOptions) {
+        if (!this.solanacontract) {
+            throw new Error("No Ethereum Contract is initialized");
+        }
+        this.solanacontract.draft(options);
+    }
+
+	initEthereumCollection(attr: { name: string; dir: string; description?: string }) {
+		this.ethereumcollection = new EthereumCollection({
 			name: attr.name,
 			dir: attr.dir,
 			description: attr.description ? attr.description : "",
 		});
 	}
 
-	generateNFTs(schema: LayerSchema) {
-		if (!this.collection) {
-			throw new Error("No Collection is initialized");
-		}
-		this.collection.setSchema(schema);
-		this.collection.generate();
-	}
+    initSolanaCollection(attr: { name: string; dir: string; description?: string; programId: PublicKey; account: PublicKey }) {
+        this.solanaCollection = new SolanaCollection({
+            name: attr.name,
+            dir: attr.dir,
+            description: attr.description ? attr.description : "",
+            programId: attr.programId,
+            account: attr.account,
+            // flatted.parse(flatted.stringify({ name: 'My NFT Collection', symbol: 'NFT' })),
+        });
+    }
+
+	generateEthereumNFTs(schema: EthereumLayerSchema) {
+        if (!this.ethereumcollection) {
+            throw new Error("No Ethereum Collection is initialized");
+        }
+        this.ethereumcollection.setSchema(schema);
+        this.ethereumcollection.generate();
+    }
+
+    generateSolanaNFTs(schema: SolanaLayerSchema) {
+        if (!this.solanaCollection) {
+            throw new Error("No Solana Collection is initialized");
+        }
+        this.solanaCollection.setSchema(schema);
+        this.solanaCollection.generate();
+    }
+
 
 	initFileStorageService(attr: {
 		service: string;
@@ -109,20 +180,37 @@ class Toolbox {
 		}
 	}
 
-	async uploadCollectionNFT() {
-		if (!this.collection) {
+    // For Ethereum
+
+	async uploadEthereumCollectionNFT() {
+		if (!this.ethereumcollection) {
 			throw new Error("No Collection is initialized");
 		}
 		if (!this.fileStorageService) {
 			throw new Error("No File Storage Service is initialized");
 		}
-		const response = await this.fileStorageService.uploadCollection(
-			this.collection
+		const response = await this.fileStorageService.uploadEthereumCollection(
+			this.ethereumcollection
 		);
 		return response;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // For Solana
+
+    async uploadSolanaCollectionNFT() {
+		if (!this.solanaCollection) {
+			throw new Error("No Collection is initialized");
+		}
+		if (!this.fileStorageService) {
+			throw new Error("No File Storage Service is initialized");
+		}
+		const response = await this.fileStorageService.uploadSolanaCollection(
+			this.solanaCollection
+		);
+		return response;
+	}
+
+	// @eslint-disable-next-line @typescript-eslint/no-explicit-any
 	async uploadSingleNFT(asset: PathLike, metadata: any) {
 		if (!this.fileStorageService) {
 			throw new Error("No File Storage Service is initialized");
@@ -134,39 +222,28 @@ class Toolbox {
 		return response;
 	}
 
-	initContract(attr: ContractAttributes) {
-		this.contract = new Contract(attr);
-	}
-
-	draftContract(options: DraftOptions) {
-		if (!this.contract) {
+	deployEthereumContract() {
+		if (!this.ethereumcontract) {
 			throw new Error("No Contract is initialized");
 		}
-		this.contract.draft(options);
-	}
-
-	deployContract() {
-		if (!this.contract) {
-			throw new Error("No Contract is initialized");
-		}
-		this.contract.deploy();
+		this.ethereumcontract.deploy();
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	async readContract(method: string, args: any[]) {
-		if (!this.contract) {
+	async readEthereumContract(method: string, args: any[]) {
+		if (!this.ethereumcontract) {
 			throw new Error("No Contract is initialized");
 		}
-		const res = await this.contract.read(method, args);
+		const res = await this.ethereumcontract.read(method, args);
 		return res;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	async writeContract(method: string, args: any[]) {
-		if (!this.contract) {
+	async writeEthereumContract(method: string, args: any[]) {
+		if (!this.ethereumcontract) {
 			throw new Error("No Contract is initialized");
 		}
-		const tx = await this.contract.write(method, args);
+		const tx = await this.ethereumcontract.write(method, args);
 		return tx;
 	}
 }
